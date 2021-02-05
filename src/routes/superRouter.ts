@@ -3,30 +3,26 @@ import User from '../models/User';
 import UserDAO from '../models/UserDAO';
 import JSONResponse from '../libs/JSONResponse';
 import JWT from '../libs/JWT';
-const indexRouter = express.Router();
+const superRouter = express.Router();
 
 let user = new UserDAO();
 
-indexRouter.post('/login', (req, res) => {
+superRouter.post('/election-authority', (req, res) => {
     try {
-        let username = req.body.username;
-        let password = req.body.password;
+        let userData: User = {
+            username    : req.body.username,
+            password    : req.body.password,
+            name        : req.body.name
+        };
 
-        user.login(username, password)
+        user.createElectionAuthority(userData)
             .then((user: User | Error) => {
                 if(user instanceof Error) {
                     console.log(false);
                     JSONResponse.unauthorized(req, res, user.message);
                 }
 
-                console.log(true);
-                let token = JWT.makeToken(user.username, user.role);
-                JSONResponse.success(req, res, 'Success Login', {
-                    username    : user.username,
-                    name        : user.name,
-                    role        : user.role,
-                    token       : token
-                });
+                JSONResponse.created(req, res, null, user);
             })
             .catch(error => {
                 throw error;
@@ -37,4 +33,4 @@ indexRouter.post('/login', (req, res) => {
     }
 });
 
-export default indexRouter;
+export default superRouter;

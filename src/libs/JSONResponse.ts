@@ -11,6 +11,14 @@ class JSONResponse {
         });
     }
     
+    static created(req: Request, res: Response, message: String | null, data: any) {
+        res.status(201).json({
+            code: 201,
+            message: message || 'Created',
+            data: data
+        });
+    }
+    
     static unauthorized(req: Request, res: Response, message: String | null) {
         res.status(403).json({
             code: 403,
