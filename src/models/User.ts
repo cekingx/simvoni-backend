@@ -1,119 +1,48 @@
-import Database from '../database/Database';
-import { Connection } from 'mysql';
+import DatabasePool from "../database/DatabasePool";
+import { Connection } from 'mysql2/promise';
 import HashPassword from '../libs/HashPassword';
 
-/**
- * ref_user
- * - user_id INT AUTO_INCREMENT
- * - user_username VARCHAR
- * - user_password VARCHAR
- * - user_nama VARCHAR
- * - user_wallet_address VARCHAR
- * - user_user_role_id INT
- */
-
 class User {
-    private _connection: Connection;
+    private connection: Promise<Connection>;
 
     constructor()
     {
-        this._connection = Database.makeConnection();
+        this.connection = DatabasePool.getConnection();
     }
 
-    public getAll(callback: Function)
+    public login(username: string, password: string)
     {
-        let query = 'SELECT * FROM ref_user';
-        this._connection.query(query, (err, rows) => {
-            if(err) throw err;
+        let query = `
+            select 
+                ref_user.user_username          as username,
+                ref_user.user_password          as password,
+                ref_user.user_nama              as name,
+                ref_user_role.user_role_name    as role
+            from ref_user 
+            join ref_user_role on user_role_id = ref_user.user_user_role_id 
+            where ref_user.user_username = ?`;
 
-            console.log('Data received from DB');
-            console.log(rows);
-            callback(rows);
-        });
-    }
-
-    public getById(id: String, callback: Function)
-    {
-        let query = 'SELECT * FROM ref_user WHERE user_id = ?';
-        let value = id
-        this._connection.query(query, value, (err, rows) => {
-            if(err) throw err;
-
-            console.log('Data received from DB');
-            console.log(rows);
-            callback(rows);
-        });
-    }
-
-    public createUser(data:any)
-    {
-        let password = data.user_password;
-        password = HashPassword.hash(password);
-
-        let user:any = {
-            user_username       : data.user_username,
-            user_password       : password,
-            user_nama           : data.user_nama,
-            user_wallet_address : data.user_wallet_address,
-            user_user_role_id   : data.user_user_role_id
-        }
-
-        let query = 'INSERT INTO ref_user SET ?';
-        this._connection.query(query, user, (err, result) => {
-            if(err) throw err;
-
-            console.log(result);
-            console.log('Oke');
-        });
-    }
-
-    public updateUser(data:any, id: String)
-    {
-        let user:any = {
-            user_username       : data.user_username,
-            user_password       : data.user_password,
-            user_nama           : data.user_nama,
-            user_wallet_address : data.user_wallet_address,
-            user_user_role_id   : data.user_user_role_id
-        }
-
-        let query = 'UPDATE ref_user SET ? WHERE user_id = ?';
-        let value = [user, id];
-        this._connection.query(query, value, (err, result, field) => {
-            if(err) throw err;
-
-            console.log(result);
-            console.log('Updated');
-            return result;
-        });
-    }
-
-    public deleteUser(id: String)
-    {
-        let query = 'DELETE from ref_user WHERE user_id = ?';
-        let value = id;
-        this._connection.query(query, value, (err, result, field) => {
-            if(err) throw err;
-
-            console.log(result);
-            console.log('Deleted');
-            return result;
-        })
-    }
-
-    public login(data: any, callback: Function)
-    {
-        let { username, password } = data;
-        let query = 'SELECT * FROM ref_user WHERE user_username = ?';
         let value = username;
-        this._connection.query(query, value, (err, result) => {
-            if(err) throw err;
+        return this.connection
+            .then(conn => conn.query(query, value))
+            .then(([rows]: any) => {
+                if(rows.length == 0) {
+                    return new Error('Username tidak ditemukan');
+                }
 
-            let isValidPassword     = HashPassword.compare(password, result[0].user_password);
-            let userRole            = result[0].user_user_role_id;
+                let isValidPassword = HashPassword.compare(password, rows[0].password);
 
-            callback(isValidPassword, userRole);
-        })
+                if(!isValidPassword) {
+                    return new Error('Password salah');
+                }
+
+                return {
+                    status      : isValidPassword, 
+                    role        : rows[0].role,
+                    username    : rows[0].username,
+                    name        : rows[0].name
+                }
+            });
     }
 }
 

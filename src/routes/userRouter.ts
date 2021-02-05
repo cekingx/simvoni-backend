@@ -7,13 +7,17 @@ let user = new User();
 
 userRouter.get('/', (req, res) => {
     try{
-        user.getAll((result: any) => {
-            if(result.length === 0) {
-                JSONResponse.notFound(req, res, null);
-            } else {
-                JSONResponse.success(req, res, null, result);
-            }
-        });
+        user.getAll()
+            .then((result: any) => {
+                if(result.length === 0) {
+                    JSONResponse.notFound(req, res, null);
+                } else {
+                    JSONResponse.success(req, res, null, result);
+                }
+            })
+            .catch(error => {
+                throw(error);
+            });
     } catch (error) {
         console.log(error.message, error.stack);
         JSONResponse.serverError(req, res, null);

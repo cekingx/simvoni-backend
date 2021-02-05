@@ -8,22 +8,28 @@ let user = new User();
 
 indexRouter.post('/login', (req, res) => {
     try {
-        let data = {
-            username: req.body.username,
-            password: req.body.password
-        }
+        let username = req.body.username;
+        let password = req.body.password;
 
-        user.login(data, (status: any, role: any) => {
-            if(status) {
-                console.log(true);
-                let token = JWT.makeToken(data.username, role);
-                JSONResponse.success(req, res, 'Success Login', {accessToken: token});
-            } else {
-                console.log(false);
-                JSONResponse.unauthorized(req, res, 'Username atau Password salah');
-            }
-        });
-
+        user.login(username, password)
+            .then((data) => {
+                if(data.status) {
+                    console.log(true);
+                    let token = JWT.makeToken(data.username, data.role);
+                    JSONResponse.success(req, res, 'Success Login', {
+                        username    : data.username,
+                        name        : data.name,
+                        role        : data.role,
+                        token       : token
+                    });
+                } else {
+                    console.log(false);
+                    JSONResponse.unauthorized(req, res, data.message);
+                }
+            })
+            .catch(error => {
+                throw error;
+            })
     } catch (error) {
         console.log(error.message, error.stack);
         JSONResponse.serverError(req, res, null);

@@ -1,9 +1,9 @@
-import { createConnection, Connection } from 'mysql';
+import { createConnection, Connection } from 'mysql2/promise';
 import dotenv from 'dotenv';
 
 class Database
 {
-    static connection: Connection;
+    static connection: Promise<Connection>;
 
     static makeConnection()
     {
