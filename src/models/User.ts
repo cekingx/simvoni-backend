@@ -14,6 +14,7 @@ class User {
     {
         let query = `
             select 
+                ref_user.user_id                as id,
                 ref_user.user_username          as username,
                 ref_user.user_password          as password,
                 ref_user.user_nama              as name,
@@ -36,12 +37,29 @@ class User {
                     return new Error('Password salah');
                 }
 
+                this.updateUserLoginAt(rows[0].id);
                 return {
                     status      : isValidPassword, 
                     role        : rows[0].role,
                     username    : rows[0].username,
                     name        : rows[0].name
                 }
+            });
+    }
+
+    private updateUserLoginAt(user_id: string)
+    {
+        let query = `
+            update ref_user
+            set user_login_at=now()
+            where ref_user.user_id = ?`;
+        let value = user_id;
+
+        return this.connection
+            .then(conn => conn.query(query, value))
+            .catch(error => {
+                console.log('error from updateUserLoginAt');
+                console.log(error);
             });
     }
 }
