@@ -2,13 +2,16 @@ import DatabasePool from "../database/DatabasePool";
 import { Connection } from 'mysql2/promise';
 import HashPassword from '../libs/HashPassword';
 import User from "./User";
+import WalletService from "../services/Wallet";
 
 class UserDAO {
     private connection: Promise<Connection>;
+    private walletService: WalletService;
 
     constructor()
     {
         this.connection = DatabasePool.getConnection();
+        this.walletService = new WalletService();
     }
 
     public login(username: string, password: string): Promise<User | Error>
@@ -73,13 +76,65 @@ class UserDAO {
                 let user: User = {
                     name        : electionAuthority.name,
                     username    : electionAuthority.username,
-                    role        : electionAuthority.role
+                    role        : "election-authority"
                 }
                 return user;
             })
             .catch(error => {
                 return new Error(error);
             });
+    }
+    
+    public getAllElectionAuthority(): Promise<User | Error>
+    {
+        let query = `
+            select
+                ref_user.user_id                as id,
+                ref_user.user_nama              as name,
+                ref_user.user_username          as username,
+                ref_user.user_wallet_address    as wallet_address
+            from ref_user
+            where ref_user.user_user_role_id = 2;`
+
+        return this.connection
+            .then(conn => conn.query(query))
+            .then(([rows]: any) => {
+                if(rows.length == 0) {
+                    return new Error('Tidak ada election authority');
+                }
+                return rows;
+            })
+    }
+
+    public setWalletAddress(username: string): Promise<string | Error>
+    {
+        let selectQuery = `
+            select ref_user.user_wallet_address as wallet_address
+            from ref_user
+            where ref_user.user_username = ?`;
+        let selectQueryValue = username;
+
+        let updateAddressQuery = `
+            update ref_user
+            set user_wallet_address= ?
+            where ref_user.user_username = ?;`;
+        let updateAddressQueryValue:any = [];
+
+        return this.connection
+            .then(conn => conn.query(selectQuery, selectQueryValue))
+            .then(([rows]: any) => {
+                if(rows[0].wallet_address != null) {
+                    return rows[0].wallet_address;
+                }
+
+                let wallet_address = this.walletService.getWalletAddress();
+                updateAddressQueryValue = [wallet_address, username];
+                return this.connection
+                    .then(conn => conn.query(updateAddressQuery, updateAddressQueryValue))
+                    .then(([rows]:any) => {
+                        return wallet_address;
+                    });
+            })
     }
 
     private updateUserLoginAt(user_id: number)

@@ -1,6 +1,7 @@
 import express from 'express'
 import indexRouter from './routes/indexRouter';
 import superRouter from "./routes/superRouter";
+import electionAuthorityRouter from './routes/electionAuthorityRouter';
 import * as bodyParser from 'body-parser';
 import Authentication from './middleware/Authentication';
 const cors = require('cors');
@@ -21,6 +22,7 @@ class App {
     private loadRoutes(): void {
         this.express.use('/', indexRouter);
         this.express.use('/super-admin', superRouter);
+        this.express.use('/election-authority', electionAuthorityRouter);
     }
 
     private loadMiddlewares(): void

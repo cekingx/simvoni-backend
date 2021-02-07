@@ -1,4 +1,5 @@
 import { sign, decode } from 'jsonwebtoken';
+import jwt_decode from "jwt-decode";
 import dotenv from 'dotenv';
 
 class JWT
@@ -18,6 +19,11 @@ class JWT
     static isAdmin(token: string)
     {
         return decode(token);
+    }
+
+    static getPayload(token: string)
+    {
+        return jwt_decode(token);
     }
 }
 
