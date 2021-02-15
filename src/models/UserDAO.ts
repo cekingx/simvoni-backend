@@ -52,6 +52,32 @@ class UserDAO {
                 return user;
             });
     }
+    
+    public getUser(username: string): Promise<User | Error>
+    {
+        let query = `
+            select
+                ref_user.user_id                as id,
+                ref_user.user_nama              as name,
+                ref_user.user_username          as username,
+                ref_user.user_wallet_address    as wallet_address,
+                ref_user.user_private_key       as private_key
+            from ref_user
+            where ref_user.user_username = ?;`
+        
+        return this.connection
+            .then(conn => conn.query(query, username))
+            .then(([rows]: any) => {
+                if(rows.length == 0) {
+                    return new Error(`Username ${username} tidak ditemukan`);
+                }
+
+                return rows[0] as User;
+            })
+            .catch(error => {
+                return new Error(error);
+            });
+    }
 
     public createElectionAuthority(electionAuthority: User): Promise<User | Error>
     {
@@ -85,7 +111,7 @@ class UserDAO {
             });
     }
     
-    public getAllElectionAuthority(): Promise<User | Error>
+    public getAllElectionAuthority(): Promise<Array<User> | Error>
     {
         let query = `
             select
@@ -102,7 +128,7 @@ class UserDAO {
                 if(rows.length == 0) {
                     return new Error('Tidak ada election authority');
                 }
-                return rows;
+                return rows as Array<User>;
             })
     }
 
@@ -115,8 +141,9 @@ class UserDAO {
         let selectQueryValue = username;
 
         let updateAddressQuery = `
-            update ref_user
-            set user_wallet_address= ?
+            update ref_user set
+            user_wallet_address= ?,
+            user_private_key= ?
             where ref_user.user_username = ?;`;
         let updateAddressQueryValue:any = [];
 
@@ -127,12 +154,13 @@ class UserDAO {
                     return rows[0].wallet_address;
                 }
 
-                let wallet_address = this.walletService.getWalletAddress();
-                updateAddressQueryValue = [wallet_address, username];
+                let { address } = this.walletService.getWalletAddress();
+                let { privateKey } = this.walletService.getWalletAddress();
+                updateAddressQueryValue = [address, privateKey, username];
                 return this.connection
                     .then(conn => conn.query(updateAddressQuery, updateAddressQueryValue))
                     .then(([rows]:any) => {
-                        return wallet_address;
+                        return address;
                     });
             })
     }

@@ -17,6 +17,7 @@ indexRouter.post('/login', (req, res) => {
                 if(user instanceof Error) {
                     console.log(false);
                     JSONResponse.unauthorized(req, res, user.message);
+                    return;
                 }
 
                 console.log(true);
@@ -30,7 +31,8 @@ indexRouter.post('/login', (req, res) => {
             })
             .catch(error => {
                 throw error;
-            })
+            });
+
     } catch (error) {
         console.log(error.message, error.stack);
         JSONResponse.serverError(req, res, null);

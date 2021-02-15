@@ -10,9 +10,10 @@ let user = new UserDAO();
 superRouter.get('/election-authority', (req, res) => {
     try {
         user.getAllElectionAuthority()
-            .then((users: User | Error) => {
+            .then((users: Array<User> | Error) => {
                 if(users instanceof Error) {
                     JSONResponse.notFound(req, res, users.message);
+                    return;
                 }
 
                 JSONResponse.success(req, res, null, users);

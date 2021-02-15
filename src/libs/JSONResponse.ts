@@ -19,10 +19,24 @@ class JSONResponse {
         });
     }
     
+    static badRequest(req: Request, res: Response, message: String | null) {
+        res.status(400).json({
+            code: 400,
+            message: message || 'Bad Request'
+        })
+    }
+
     static unauthorized(req: Request, res: Response, message: String | null) {
+        res.status(401).json({
+            code: 401,
+            message: message || 'Unauthorized Request'
+        })
+    }
+
+    static forbidden(req: Request, res: Response, message: String | null) {
         res.status(403).json({
             code: 403,
-            message: message || 'Unauthorized Request'
+            message: message || 'Forbidden'
         })
     }
     

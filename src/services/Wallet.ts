@@ -11,11 +11,11 @@ class WalletService {
         this.web3 = new web3(host);
     }
 
-    getWalletAddress(): string
+    getWalletAddress(): any
     {
-        let data = this.web3.eth.accounts.create();
+        let account = this.web3.eth.accounts.create();
 
-        return data.address;
+        return account;
     }
 }
 

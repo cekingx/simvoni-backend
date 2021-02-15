@@ -25,6 +25,20 @@ class JWT
     {
         return jwt_decode(token);
     }
+
+    static getTokenFromHeader(authorization: string)
+    {
+        let authHeader  = authorization;
+        let token       = authHeader.split(' ')[1];
+        return token;
+    }
+
+    static getPayloadFronHeader(authorization: string)
+    {
+        let authHeader  = authorization;
+        let token       = authHeader.split(' ')[1];
+        return jwt_decode(token);
+    }
 }
 
 export default JWT;
