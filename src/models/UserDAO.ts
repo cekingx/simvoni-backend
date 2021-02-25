@@ -21,7 +21,7 @@ class UserDAO {
                 ref_user.user_id                as id,
                 ref_user.user_username          as username,
                 ref_user.user_password          as password,
-                ref_user.user_nama              as name,
+                ref_user.user_name              as name,
                 ref_user_role.user_role_name    as role
             from ref_user 
             join ref_user_role on user_role_id = ref_user.user_user_role_id 
@@ -58,7 +58,7 @@ class UserDAO {
         let query = `
             select
                 ref_user.user_id                as id,
-                ref_user.user_nama              as name,
+                ref_user.user_name              as name,
                 ref_user.user_username          as username,
                 ref_user.user_wallet_address    as wallet_address,
                 ref_user.user_private_key       as private_key
@@ -83,7 +83,7 @@ class UserDAO {
     {
         let query = `
             insert into ref_user
-            (user_username, user_password, user_nama, user_user_role_id, user_is_verified)
+            (user_username, user_password, user_name, user_user_role_id, user_is_verified)
             values (?, ?, ?, ?, ?)`;
 
         let password = HashPassword.hash(electionAuthority.password);
@@ -116,7 +116,7 @@ class UserDAO {
         let query = `
             select
                 ref_user.user_id                as id,
-                ref_user.user_nama              as name,
+                ref_user.user_name              as name,
                 ref_user.user_username          as username,
                 ref_user.user_wallet_address    as wallet_address
             from ref_user

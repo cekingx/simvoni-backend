@@ -1,5 +1,9 @@
+/**
+ * MOVE TO ELECTION AUTHORITY ROUTER
+ */
+
 import express from 'express';
-import ElectionService from '../services/Election';
+import ElectionService from '../services/ElectionService';
 import JSONResponse from '../libs/JSONResponse';
 const electionRouter = express.Router();
 

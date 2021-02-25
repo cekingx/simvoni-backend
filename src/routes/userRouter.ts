@@ -1,3 +1,7 @@
+/**
+ * REMOVE SOON 
+ */ 
+
 import * as express from 'express'
 import User from '../models/User';
 import JSONResponse from '../libs/JSONResponse';

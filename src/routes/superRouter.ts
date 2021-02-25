@@ -40,6 +40,7 @@ superRouter.post('/election-authority', (req, res) => {
                 if(user instanceof Error) {
                     console.log(false);
                     JSONResponse.unauthorized(req, res, user.message);
+                    return;
                 }
 
                 JSONResponse.created(req, res, null, user);
