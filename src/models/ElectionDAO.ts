@@ -10,6 +10,34 @@ class ElectionDAO {
         this.connection = DatabasePool.getConnection();
     }
 
+    public getElectionByUserId(userId: number): Promise<Array<Election> | Error>
+    {
+        let query = `
+            select 
+                ta_election.election_name               as name,
+                ta_election.election_description        as description,
+                ref_user.user_username                  as election_authority,
+                ref_election_status.election_status     as status,
+                ta_election.election_start              as start,
+                ta_election.election_end                as end
+            from ta_election
+            join ref_user 
+                on ref_user.user_id=ta_election.election_authority
+            join ref_election_status 
+                on ref_election_status.election_status_id=ta_election.election_status
+            where ref_user.user_id = ?`
+
+        return this.connection
+            .then(conn => conn.query(query, userId))
+            .then(([rows]: any) => {
+                return rows;
+            })
+            .catch(error => {
+                console.log(error);
+                return new Error(error);
+            });
+    }
+
     public createElection(election: Election): Promise<Election | Error>
     {
         let query = `
@@ -24,6 +52,8 @@ class ElectionDAO {
             )
             values (?, ?, ?, ?, ?, ?);`
 
+        // set new election status to 1
+        // 1 = waiting_approval
         let value =     
         [
             election.name,

@@ -14,7 +14,22 @@ let electionService = new ElectionService();
 
 electionAuthorityRouter.get('/election', (req, res) => {
     try {
-        
+        let payload: any = JWT.getPayloadFronHeader(req.headers.authorization);
+        let username = payload.username;
+
+        election.getEaId(username)
+            .then((ea_id: number) => {
+                election.getElectionByUserId(ea_id)
+                    .then((elections: Array<Election> | Error) => {
+                        if(elections instanceof Error) {
+                            console.log(false);
+                            JSONResponse.badRequest(req, res, null);
+                            return;
+                        }
+
+                        JSONResponse.success(req, res, 'Success', elections);
+                    })
+            })
     } catch (error) {
         console.log(error.message, error.stack);
         JSONResponse.serverError(req, res, null);

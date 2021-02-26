@@ -88,6 +88,10 @@ class UserDAO {
 
         let password = HashPassword.hash(electionAuthority.password);
 
+        //set user_role to election-authority
+        // 2 = election-authority
+        // set is_verified to true
+        // 1 = true
         let value = [
             electionAuthority.username,
             password,
