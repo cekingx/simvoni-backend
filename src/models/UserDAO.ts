@@ -158,14 +158,15 @@ class UserDAO {
                     return rows[0].wallet_address;
                 }
 
-                let { address } = this.walletService.getWalletAddress();
-                let { privateKey } = this.walletService.getWalletAddress();
-                updateAddressQueryValue = [address, privateKey, username];
-                return this.connection
-                    .then(conn => conn.query(updateAddressQuery, updateAddressQueryValue))
-                    .then(([rows]:any) => {
-                        return address;
-                    });
+                return this.walletService.createAccount('secret')
+                    .then((account: any) => {
+                        updateAddressQueryValue = [account.address, account.privateKey, username];
+                        return this.connection
+                            .then(conn => conn.query(updateAddressQuery, updateAddressQueryValue))
+                            .then(([rows]:any) => {
+                                return account.address;
+                            });
+                    })
             })
     }
 

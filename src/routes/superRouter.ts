@@ -1,11 +1,14 @@
 import express from 'express';
 import User from '../models/User';
 import UserDAO from '../models/UserDAO';
+import Election from '../models/Election';
+import ElectionDAO from '../models/ElectionDAO';
 import JSONResponse from '../libs/JSONResponse';
 import JWT from '../libs/JWT';
 const superRouter = express.Router();
 
 let user = new UserDAO();
+let election = new ElectionDAO();
 
 superRouter.get('/election-authority', (req, res) => {
     try {
@@ -53,5 +56,18 @@ superRouter.post('/election-authority', (req, res) => {
         JSONResponse.serverError(req, res, null);
     }
 });
+
+superRouter.post('/election/deploy', (req, res) => {
+    try {
+        election.deployElection(1)
+            .then((tx: any) => {
+                JSONResponse.success(req, res, null, tx);
+                return;
+            });
+    } catch (error) {
+        console.log(error.message, error.stack);
+        JSONResponse.serverError(req, res, null);
+    }
+})
 
 export default superRouter;

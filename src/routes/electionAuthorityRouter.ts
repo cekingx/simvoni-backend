@@ -29,7 +29,7 @@ electionAuthorityRouter.get('/election', (req, res) => {
 
                         JSONResponse.success(req, res, 'Success', elections);
                     })
-            })
+            });
     } catch (error) {
         console.log(error.message, error.stack);
         JSONResponse.serverError(req, res, null);

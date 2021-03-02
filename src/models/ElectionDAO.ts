@@ -1,13 +1,16 @@
 import DatabasePool from "../database/DatabasePool";
 import { Connection } from "mysql2/promise";
 import Election from "./Election";
+import WalletService from "../services/Wallet";
 
 class ElectionDAO {
     private connection: Promise<Connection>
+    private walletService: WalletService;
 
     constructor()
     {
         this.connection = DatabasePool.getConnection();
+        this.walletService = new WalletService();
     }
 
     public getElectionByUserId(userId: number): Promise<Array<Election> | Error>
@@ -97,6 +100,24 @@ class ElectionDAO {
             .then(([rows]: any) => {
                 return rows[0].user_id
             });
+    }
+
+    public deployElection(eaId: number): Promise<any>
+    {
+        return this.walletService.unlockAccount('0xa7DE7C83c2Ec1AAe4BC7Abd3D9ba61B7Fa3D1893', 'secret')
+            .then(() => {
+                this.walletService.sendEther(
+                    '0xfE661b28728C663503E00BcaE2DFBbe416EfE5B6',
+                    'password',
+                    '0xa7DE7C83c2Ec1AAe4BC7Abd3D9ba61B7Fa3D1893',
+                    '1000000000000000000'
+                )
+                .then(data => {
+                    console.log(data);
+                    return data;
+                });
+            });
+
     }
 }
 
