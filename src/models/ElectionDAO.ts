@@ -2,15 +2,18 @@ import DatabasePool from "../database/DatabasePool";
 import { Connection } from "mysql2/promise";
 import Election from "./Election";
 import WalletService from "../services/Wallet";
+import ElectionService from "../services/ElectionService";
 
 class ElectionDAO {
-    private connection: Promise<Connection>
-    private walletService: WalletService;
+    private connection      : Promise<Connection>
+    private walletService   : WalletService;
+    private electionService : ElectionService;
 
     constructor()
     {
-        this.connection = DatabasePool.getConnection();
-        this.walletService = new WalletService();
+        this.connection         = DatabasePool.getConnection();
+        this.walletService      = new WalletService();
+        this.electionService    = new ElectionService();
     }
 
     public getElectionByUserId(userId: number): Promise<Array<Election> | Error>
@@ -104,18 +107,27 @@ class ElectionDAO {
 
     public deployElection(eaId: number): Promise<any>
     {
-        return this.walletService.unlockAccount('0xa7DE7C83c2Ec1AAe4BC7Abd3D9ba61B7Fa3D1893', 'secret')
+        let superAddress    = '0xfE661b28728C663503E00BcaE2DFBbe416EfE5B6';
+        let eaAddress       = '0xa7DE7C83c2Ec1AAe4BC7Abd3D9ba61B7Fa3D1893';
+
+        return this.walletService.unlockAccount(eaAddress, 'secret')
             .then(() => {
                 this.walletService.sendEther(
-                    '0xfE661b28728C663503E00BcaE2DFBbe416EfE5B6',
+                    superAddress,
                     'password',
-                    '0xa7DE7C83c2Ec1AAe4BC7Abd3D9ba61B7Fa3D1893',
+                    eaAddress,
                     '1000000000000000000'
                 )
                 .then(data => {
                     console.log(data);
                     return data;
                 });
+            })
+            .then(() => {
+                this.electionService.deployContractV2(eaAddress)
+                    .then((contract: any) => {
+                        return contract;
+                    })
             });
 
     }

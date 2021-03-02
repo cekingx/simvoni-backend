@@ -44,14 +44,14 @@ class ElectionService
         });
     }
 
-    deployContractV2(sender: string)
+    deployContractV2(sender: string): Promise<any>
     {
         // let abi = this.ContractDetail.abi;
         // let bytecode = this.ContractDetail.bytecode;
         let abi = contractFile.abi;
         let bytecode = contractFile.bytecode;
         let contract = new this.web3.eth.Contract(abi);
-        contract.deploy({
+        return contract.deploy({
             data: bytecode
         })
         .send({
@@ -60,6 +60,7 @@ class ElectionService
         })
         .then(contractInstance => {
             console.log(contractInstance);
+            return contractInstance;
         })
         .catch(error => {
             console.log('Contract ' + error)
