@@ -60,6 +60,7 @@ class ElectionService
         })
         .then(contractInstance => {
             console.log(contractInstance);
+            console.log(contractInstance.options.address);
             return contractInstance;
         })
         .catch(error => {

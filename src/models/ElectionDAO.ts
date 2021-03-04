@@ -107,8 +107,8 @@ class ElectionDAO {
 
     public deployElection(eaId: number): Promise<any>
     {
-        let superAddress    = '0xfE661b28728C663503E00BcaE2DFBbe416EfE5B6';
-        let eaAddress       = '0xa7DE7C83c2Ec1AAe4BC7Abd3D9ba61B7Fa3D1893';
+        let superAddress    = '0xE0Ad1C897334Ab9291d6591081900b2E4dd634B9';
+        let eaAddress       = '0x7516bDaffc244422ac8820B9D0894519A4E5e0C4';
 
         return this.walletService.unlockAccount(eaAddress, 'secret')
             .then(() => {
