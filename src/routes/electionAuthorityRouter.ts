@@ -72,6 +72,26 @@ electionAuthorityRouter.post('/election', (req, res) => {
     }
 })
 
+electionAuthorityRouter.get('/election/:electionId', (req, res) => {
+    try {
+        let electionId: number = Number(req.params.electionId);
+
+        election.getElectionById(electionId)
+            .then((election: Election | Error) => {
+                if(election instanceof Error) {
+                    console.log(false);
+                    JSONResponse.badRequest(req, res, null);
+                    return;
+                }
+
+                JSONResponse.success(req, res, 'Success', election);
+            });
+    } catch (error) {
+        console.log(error.message, error.stack);
+        JSONResponse.serverError(req, res, null);
+    }
+})
+
 electionAuthorityRouter.post('/set-wallet-address', (req, res) => {
     try {
         let payload: any    = JWT.getPayloadFronHeader(req.headers.authorization);
@@ -86,33 +106,6 @@ electionAuthorityRouter.post('/set-wallet-address', (req, res) => {
                 throw error;
             });
 
-    } catch (error) {
-        console.log(error.message, error.stack);
-        JSONResponse.serverError(req, res, null);
-    }
-});
-
-electionAuthorityRouter.post('/deploy-contract', (req, res) => {
-    try {
-        let payload: any    = JWT.getPayloadFronHeader(req.headers.authorization);
-        let username        = payload.username;
-
-        user.getUser(username)
-            .then((user: User | Error) => {
-                if(user instanceof Error) {
-                    JSONResponse.notFound(req, res, user.message);
-                    return;
-                }
-
-                if(user.wallet_address == null) {
-                    JSONResponse.badRequest(req, res, 'User belum memiliki Wallet Address');
-                    return;
-                }
-
-                console.log(user.wallet_address);
-                electionService.deployContractV2(user.wallet_address)
-                JSONResponse.success(req, res, null, user);
-            })
     } catch (error) {
         console.log(error.message, error.stack);
         JSONResponse.serverError(req, res, null);
